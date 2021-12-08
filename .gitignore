@@ -10,3 +10,4 @@ venv/
 bdk.log
 datafeed.id
 **/__pycache__
+results.txt
