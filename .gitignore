@@ -1,0 +1,12 @@
+# Editors
+.vscode/
+.idea/
+
+# Mac/OSX
+.DS_Store
+
+rsa/
+venv/
+bdk.log
+datafeed.id
+**/__pycache__
