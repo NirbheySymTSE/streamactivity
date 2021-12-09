@@ -28,12 +28,14 @@ if len(args.since) <= 10: args.since = str(int(args.since) * 1000)
 
 
 # ZD 34318
+# Extracts all sent messages within time period in stream
 async def stream_messages(bdk):
     logging.debug("extracting messages")
     messages = await bdk.messages().list_messages(args.stream, since=args.since)
     return messages
 
 
+# Sorts messages by who sent it, identifier keys are tupled (uid, email)
 async def sent_messages(messages):
     logging.debug("sorting user sent messages")
     sorted_messages = {}
@@ -49,6 +51,7 @@ async def sent_messages(messages):
         return []
 
 
+# Sorts messages by who has read them, identifier keys are tupled (uid, email)
 async def read_messages(bdk, messages):
     logging.debug("sorting user read messages")
     sorted_messages = {}
@@ -93,7 +96,7 @@ async def write_stream_data(bdk):
     for uid in room_members:
         results_file.write(uid + "\t" + room_members[uid] + "\n")
 
-    # Union users who might have interacted with room but are no longer members
+    # Writing users who might have interacted with room but are no longer members
     for user in user_sent_messages:
         if user[0] not in room_members.keys():
             room_members[user[0]] = user[1]
@@ -154,7 +157,11 @@ async def write_stream_data(bdk):
 
 
 async def run():
-    config = BdkConfigLoader.load_from_file(args.config)
+    try:
+        config = BdkConfigLoader.load_from_file(args.config)
+    except Exception as e:
+        logging.debug("Config Error: " + str(e))
+        quit()
     async with SymphonyBdk(config) as bdk:
         await write_stream_data(bdk)
 
