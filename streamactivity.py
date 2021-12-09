@@ -35,23 +35,26 @@ async def stream_messages(bdk):
 
 
 async def sent_messages(messages):
-    logging.debug("sorting user messages")
+    logging.debug("sorting user sent messages")
     sorted_messages = {}
 
     try:
         for message in messages:
             sender_id = str(message.user.user_id).strip()
             try:
-                sorted_messages[sender_id].append(message)
+                # sorted_messages[sender_id].append(message)
+                # print(message.user)
+                sorted_messages[(str(message.user.user_id).strip(), message.user.email)].append(message)
             except:
-                sorted_messages[sender_id]=[message]
+                # sorted_messages[sender_id]=[message]
+                sorted_messages[(str(message.user.user_id).strip(), message.user.email)] = [message]
         return sorted_messages
     except:
         return []
 
 
 async def read_messages(bdk, messages):
-    logging.debug("counting read messages")
+    logging.debug("sorting user read messages")
     sorted_messages = {}
 
     try:
@@ -59,11 +62,12 @@ async def read_messages(bdk, messages):
             message_id = message.message_id
             status = await bdk.messages().get_message_status(message_id)
             for readers in status["read"]:
-                reader = readers.user_id
+                # reader = readers.user_id
+                # print(readers)
                 try:
-                    sorted_messages[reader].append(message)
+                    sorted_messages[(str(readers.user_id).strip(), readers.email)].append(message)
                 except:
-                    sorted_messages[reader] = [message]
+                    sorted_messages[(str(readers.user_id).strip(), readers.email)] = [message]
         return sorted_messages
     except:
         return []
@@ -76,13 +80,23 @@ async def write_stream_data(bdk):
 
     # Extracting userID and their email from account information
     for member_info in unfiltered_room_members:
-        uid = str(member_info["user"]["user_id"])
-        email = member_info["user"]["email"]
-        room_members[uid] = email
+        # print(member_info)
+        user_info = member_info["user"]["email"]
+        user_id = str(member_info["user"]["user_id"]).strip()
+        # print(user_info)
+        room_members[user_id] = user_info
 
     all_stream_messages = await stream_messages(bdk)
     user_sent_messages = await sent_messages(all_stream_messages)
     user_read_messages = await read_messages(bdk, all_stream_messages)
+
+    # for user in user_sent_messages:
+    #     if user[0] not in room_members.keys():
+    #         room_members[user[0]] = user[1]
+    #
+    # for user in user_read_messages:
+    #     if user[0] not in room_members.keys():
+    #         room_members[user[0]] = user[1]
 
     # Header & Room Member Info
     logging.debug("writing data")
@@ -96,38 +110,63 @@ async def write_stream_data(bdk):
     for uid in room_members:
         results_file.write(uid + "\t" + room_members[uid] + "\n")
 
+    # Union users who might have interacted with room but are no longer members
+    for user in user_sent_messages:
+        if user[0] not in room_members.keys():
+            room_members[user[0]] = user[1]
+
+    for user in user_read_messages:
+        if user[0] not in room_members.keys():
+            room_members[user[0]] = user[1]
+
+    results_file.write(
+        "\n\nUsers who interacted with stream:\n"
+    )
+    for uid in room_members:
+        results_file.write(uid + "\t" + room_members[uid] + "\n")
+
     # Total message sent/read stats
+    logging.debug("Writing Total User Stats")
     results_file.write("\n\nTotal messages sent:\n\n")
     for uid in room_members:
         try:
-            results_file.write("\t" + uid + '\t| ' + str(len(user_sent_messages[uid])) + '\n')
-        except:
+            results_file.write("\t" + uid + '\t| ' + str(len(user_sent_messages[(uid, room_members[uid])])) + '\n')
+            logging.debug('pass')
+        except Exception as e:
+            logging.debug("exception triggered: " + str(e))
             results_file.write("\t" + uid + '\t| 0\n')
 
     results_file.write("\nTotal messages read:\n\n")
     for uid in room_members:
         try:
-            results_file.write("\t" + uid + '\t| ' + str(len(user_read_messages[uid])) + '\n')
-        except:
+            results_file.write("\t" + uid + '\t| ' + str(len(user_read_messages[(uid, room_members[uid])])) + '\n')
+            logging.debug('pass')
+        except Exception as e:
+            logging.debug("exception triggered: " + str(e))
             results_file.write("\t" + uid + '\t| 0\n')
 
     # Individual messages sent/read
+    logging.debug("Writing User Sent/Read Messages")
     results_file.write("\n\nMessages sent: \n")
     for uid in room_members:
         results_file.write('\n\t' + uid + ':\n')
         try:
-            for i in user_sent_messages[uid]:
+            for i in user_sent_messages[(uid, room_members[uid])]:
                 results_file.write('\t\t' + str(i.message_id) + '\n')
-        except:
+                logging.debug('pass')
+        except Exception as e:
+            logging.debug("exception triggered: " + str(e))
             results_file.write('\t\t--\n')
 
     results_file.write("\n\nMessages read: \n")
     for uid in room_members:
         results_file.write('\n\t' + uid + ':\n')
         try:
-            for i in user_read_messages[uid]:
+            for i in user_read_messages[(uid, room_members[uid])]:
                 results_file.write('\t\t' + str(i.message_id) + '\n')
-        except:
+                logging.debug('pass')
+        except Exception as e:
+            logging.debug("exception triggered: " + str(e))
             results_file.write('\t\t--\n')
 
 
