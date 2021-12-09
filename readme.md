@@ -5,6 +5,8 @@ It takes in a configuration file, authentication keys, a service account on the 
 
 This script uses Python to function, please install it before attempting to run this.
 
+**Please note this is an unsupported script, it has been developed as a guideline for you to adapt.**
+
 ### Install Symphony Python BDK
 
 You will need to install the Python BDK:
