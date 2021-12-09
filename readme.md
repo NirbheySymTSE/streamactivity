@@ -20,11 +20,11 @@ Next, you will be required to have the following:
 * RSA Key Pair
 * config.yaml
   
-These are required for script to authenticate and execute.
+These are required for the script to authenticate and execute.
 
 **RSA Key Pair**
 
-This may need to come internally from a team who administers your Pod. You can find instructions to create an RSA Key Pair here: https://docs.developers.symphony.com/building-bots-on-symphony/authentication/rsa-authentication#1.-create-an-rsa-key-pair
+This may need to come internally from a team that administers your Pod. You can find instructions to create an RSA Key Pair here: https://docs.developers.symphony.com/building-bots-on-symphony/authentication/rsa-authentication#1.-create-an-rsa-key-pair
 
 **config.yaml**
 
