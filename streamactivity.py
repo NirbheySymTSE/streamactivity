@@ -9,10 +9,10 @@ from pathlib import Path
 from symphony.bdk.core.config.loader import BdkConfigLoader
 from symphony.bdk.core.symphony_bdk import SymphonyBdk
 
-# Configure logging
-current_dir = Path(__file__).parent
-logging_conf = Path.joinpath(current_dir, 'resources', 'logging.conf')
-logging.config.fileConfig(logging_conf, disable_existing_loggers=False)
+# Create /resources/logging.conf and uncomment next three lines to enable logging
+# current_dir = Path(__file__).parent
+# logging_conf = Path.joinpath(current_dir, 'resources', 'logging.conf')
+# logging.config.fileConfig(logging_conf, disable_existing_loggers=False)
 
 # Arg parsing & Setup the configuration loading
 parser = argparse.ArgumentParser()
@@ -27,7 +27,6 @@ args = parser.parse_args()
 if len(args.since) <= 10: args.since = str(int(args.since) * 1000)
 
 
-# ZD 34318
 # Extracts all sent messages within time period in stream
 async def stream_messages(bdk):
     logging.debug("extracting messages")
