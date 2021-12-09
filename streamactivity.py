@@ -70,6 +70,7 @@ async def read_messages(bdk, messages):
 
 
 async def write_stream_data(bdk):
+    logging.debug("writing data")
     results_file = open("results.txt", "w")
     unfiltered_room_members = (await bdk.streams().list_stream_members(args.stream))["members"].value
     room_members = {}
