@@ -9,5 +9,7 @@ rsa/
 env/
 bdk.log
 datafeed.id
+config.json
+Config.yaml
 **/__pycache__
 results.txt
