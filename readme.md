@@ -47,7 +47,7 @@ Run the script with the following command in your working directory:
 ```
 python streamactivity.py --config /path/to/config.yaml --stream "stream_id"
 ```
-Please note that a conversationID will need to be amended to be URL compatible for the APIs in the script to function.
+Please note that a stream/conversationID will need to be amended to be URL compatible for the APIs in the script to function.
 
 To set a specific timeframe, use this argument:
 ```
