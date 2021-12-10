@@ -72,6 +72,7 @@ async def write_stream_data(bdk):
     results_file = open("results.txt", "w")
     unfiltered_room_members = (await bdk.streams().list_stream_members(args.stream))["members"].value
     room_members = {}
+    former_room_members = {}
 
     # Extracting userID and their email from account information
     for member_info in unfiltered_room_members:
@@ -89,7 +90,7 @@ async def write_stream_data(bdk):
     results_file.write(
         "\nActivity in stream since " +
         str((datetime.datetime.utcfromtimestamp(round(int(args.since) / 1000))).strftime('%Y-%m-%d %H:%M:%S')) +
-        "\n\nRoom members:\n"
+        "\n\nCurrent Room members:\n"
     )
 
     for uid in room_members:
@@ -99,16 +100,18 @@ async def write_stream_data(bdk):
     for user in user_sent_messages:
         if user[0] not in room_members.keys():
             room_members[user[0]] = user[1]
+            former_room_members[user[0]] = user[1]
 
     for user in user_read_messages:
         if user[0] not in room_members.keys():
             room_members[user[0]] = user[1]
+            former_room_members[user[0]] = user[1]
 
     results_file.write(
-        "\n\nUsers who interacted with stream:\n"
+        "\n\nFormer members who interacted with stream within timeframe:\n"
     )
-    for uid in room_members:
-        results_file.write(uid + "\t" + room_members[uid] + "\n")
+    for uid in former_room_members:
+        results_file.write(uid + "\t" + former_room_members[uid] + "\n")
 
     # Total message sent/read stats
     logging.debug("Writing Total User Stats")
