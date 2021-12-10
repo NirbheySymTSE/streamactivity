@@ -71,14 +71,14 @@ async def read_messages(bdk, messages):
 async def write_stream_data(bdk):
     results_file = open("results.txt", "w")
     unfiltered_room_members = (await bdk.streams().list_stream_members(args.stream))["members"].value
-    room_members = {}
+    end_users = {}
     former_room_members = {}
 
     # Extracting userID and their email from account information
     for member_info in unfiltered_room_members:
         user_info = member_info["user"]["email"]
         user_id = str(member_info["user"]["user_id"]).strip()
-        room_members[user_id] = user_info
+        end_users[user_id] = user_info
 
     all_stream_messages = await stream_messages(bdk)
     user_sent_messages = await sent_messages(all_stream_messages)
@@ -93,18 +93,18 @@ async def write_stream_data(bdk):
         "\n\nCurrent Room members:\n"
     )
 
-    for uid in room_members:
-        results_file.write(uid + "\t" + room_members[uid] + "\n")
+    for uid in end_users:
+        results_file.write(uid + "\t" + end_users[uid] + "\n")
 
     # Writing users who might have interacted with room but are no longer members
     for user in user_sent_messages:
-        if user[0] not in room_members.keys():
-            room_members[user[0]] = user[1]
+        if user[0] not in end_users.keys():
+            end_users[user[0]] = user[1]
             former_room_members[user[0]] = user[1]
 
     for user in user_read_messages:
-        if user[0] not in room_members.keys():
-            room_members[user[0]] = user[1]
+        if user[0] not in end_users.keys():
+            end_users[user[0]] = user[1]
             former_room_members[user[0]] = user[1]
 
     results_file.write(
@@ -117,18 +117,18 @@ async def write_stream_data(bdk):
     logging.debug("Writing Total User Stats")
     results_file.write("\n\nTotal messages sent:\n\n")
     logging.debug("\tWriting Total Sent Stats")
-    for uid in room_members:
+    for uid in end_users:
         try:
-            results_file.write("\t" + uid + '\t| ' + str(len(user_sent_messages[(uid, room_members[uid])])) + '\n')
+            results_file.write("\t" + uid + '\t| ' + str(len(user_sent_messages[(uid, end_users[uid])])) + '\n')
         except Exception as e:
             logging.debug("exception triggered: " + str(e) + "\t| Expected if user has not sent any messages")
             results_file.write("\t" + uid + '\t| 0\n')
 
     results_file.write("\nTotal messages read:\n\n")
     logging.debug("\tWriting Total Read Stats")
-    for uid in room_members:
+    for uid in end_users:
         try:
-            results_file.write("\t" + uid + '\t| ' + str(len(user_read_messages[(uid, room_members[uid])])) + '\n')
+            results_file.write("\t" + uid + '\t| ' + str(len(user_read_messages[(uid, end_users[uid])])) + '\n')
         except Exception as e:
             logging.debug("exception triggered: " + str(e) + "\t| Expected if user has not read any messages")
             results_file.write("\t" + uid + '\t| 0\n')
@@ -137,10 +137,10 @@ async def write_stream_data(bdk):
     logging.debug("Writing User Sent/Read Messages")
     results_file.write("\n\nMessages sent: \n")
     logging.debug("\tWriting User Sent Messages")
-    for uid in room_members:
+    for uid in end_users:
         results_file.write('\n\t' + uid + ':\n')
         try:
-            for i in user_sent_messages[(uid, room_members[uid])]:
+            for i in user_sent_messages[(uid, end_users[uid])]:
                 results_file.write('\t\t' + str(i.message_id) + '\n')
         except Exception as e:
             logging.debug("exception triggered: " + str(e) + "\t| Expected if user has not sent any messages")
@@ -148,10 +148,10 @@ async def write_stream_data(bdk):
 
     results_file.write("\n\nMessages read: \n")
     logging.debug("\tWriting User Read Messages")
-    for uid in room_members:
+    for uid in end_users:
         results_file.write('\n\t' + uid + ':\n')
         try:
-            for i in user_read_messages[(uid, room_members[uid])]:
+            for i in user_read_messages[(uid, end_users[uid])]:
                 results_file.write('\t\t' + str(i.message_id) + '\n')
         except Exception as e:
             logging.debug("exception triggered: " + str(e) + "\t| Expected if user has not read any messages")
