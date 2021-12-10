@@ -58,7 +58,7 @@ python streamactivity.py --config /path/to/config.yaml --since epoch_timestamp -
 ### Setup logging and debug
 Setting up and enabling logging is not necessary to run this script but can be useful for debugging. 
 
-Uncomment lines 13-15 and create the following file and subdirectory within your working directory:
+Uncomment lines 13-15 in streamactivity.py, and create the following file and directory, within your working directory:
 ```
 /resources/logging.conf
 ```
