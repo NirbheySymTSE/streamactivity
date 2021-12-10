@@ -47,7 +47,8 @@ Run the script with the following command in your working directory:
 ```
 python streamactivity.py --config /path/to/config.yaml --stream "stream_id"
 ```
-Please note that a stream/conversationID will need to be amended to be URL compatible for the APIs in the script to function.
+Please note that a stream/conversationID will need to be URL Safe Base64 encoded for the APIs in the script to function.
+You can find more information about this here: https://docs.developers.symphony.com/building-bots-on-symphony/messages#message-identifiers
 
 To set a specific timeframe, use this argument:
 ```
